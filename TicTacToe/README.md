@@ -11,6 +11,7 @@ This is a simple TicTacToe game implemented in React for TypeScript. The game is
 - The game will display the winner or draw
 
 ## Extra features
+- The game has two mode, vs Cpu mode and vs Human mode.
 - The game will display the history of moves
 - The game will allow the player to go back to a previous move
 - The game will highlight the current move
