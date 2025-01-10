@@ -33,7 +33,7 @@ function Board({ xIsNext, squares, onPlay, botToggled }: BoardProps) {
   }
 
   const winner = calculateWinner(squares);
-  let status;
+  let status: string;
   if (botToggled) {
     status = "Human vs Bot"
     if (winner === "O") {
@@ -122,6 +122,15 @@ export default function Game() {
 
   function jumpTo(nextMove: number): void {
     setCurrentMove(nextMove);
+    const last = history[currentMove];
+    const prev = history[currentMove - 1];
+    let diff;
+    for (let i=0; i < history[currentMove].length; i++){
+      if (last[i] !== prev[i]){
+        diff = i;
+      }
+    }
+    console.log(diff);
   }
 
   const moves = history.map((squares, move) => {
