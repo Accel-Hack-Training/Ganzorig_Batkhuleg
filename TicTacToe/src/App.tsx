@@ -15,10 +15,10 @@ type BoardProps = {
   xIsNext: boolean;
   squares: (string | null)[];
   onPlay: (nextSquares: (string | null)[]) => void;
-  BotToggled: boolean;
+  botToggled: boolean;
 };
 
-function Board({ xIsNext, squares, onPlay, BotToggled }: BoardProps) {
+function Board({ xIsNext, squares, onPlay, botToggled }: BoardProps) {
   function handleClick(i: number):void {
     if (squares[i] || calculateWinner(squares)) {
       return;
@@ -34,8 +34,15 @@ function Board({ xIsNext, squares, onPlay, BotToggled }: BoardProps) {
 
   const winner = calculateWinner(squares);
   let status;
-  if (BotToggled) {
+  if (botToggled) {
     status = "Human vs Bot"
+    if (winner === "O") {
+      status = "Winner: Bot";
+    } else if (winner ==="X") {
+      status = "Winner: Human";
+    } else {
+    status = "Human vs Bot"
+    }
   } else {
     if (winner) {
       status = "Winner: " + winner;
@@ -75,10 +82,10 @@ export default function Game() {
   const [currentMove, setCurrentMove] = useState<number>(0);
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
-  const [BotToggled, setToggled] = useState(false);
+  const [botToggled, setToggled] = useState(false);
 
   let mode;
-  if(BotToggled) {
+  if(botToggled) {
     mode = "2 player mode"
   } else {
     mode = "single player mode"
@@ -87,11 +94,31 @@ export default function Game() {
   if (!xIsNext) {
   }
 
+  function getBotMove(squares: (string | null)[]): number | null {
+    const emptySquares = squares.map((sq, idx) => (sq === null ? idx : null)).filter(idx => idx !== null) as number[];
+    if (emptySquares.length === 0) {
+      return null; // No moves available
+    }
+    return emptySquares[Math.floor(Math.random() * emptySquares.length)];
+  }
+
   function handlePlay(nextSquares: (string | null)[]): void {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
+  
+    if (botToggled && !calculateWinner(nextSquares) && nextSquares.includes(null)) {
+      const botMoveIndex = getBotMove(nextSquares);
+      if (botMoveIndex !== null) {
+        const botSquares = nextSquares.slice();
+        botSquares[botMoveIndex] = "O"; // Assume bot is "O"
+        const updatedHistory = [...nextHistory, botSquares];
+        setHistory(updatedHistory);
+        setCurrentMove(updatedHistory.length - 1);
+      }
+    }
   }
+  
 
   function jumpTo(nextMove: number): void {
     setCurrentMove(nextMove);
@@ -114,9 +141,9 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} BotToggled={BotToggled}/>
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} botToggled={botToggled}/>
         <div className='MoveBot'>
-          <button className='toggle-btn' onClick={() => setToggled(!BotToggled)}>
+          <button className='toggle-btn' onClick={() => setToggled(!botToggled)}>
             <div className='thumb'>{mode}</div>
           </button>
         </div>
