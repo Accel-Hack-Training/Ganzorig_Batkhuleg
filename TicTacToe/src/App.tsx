@@ -15,9 +15,10 @@ type BoardProps = {
   xIsNext: boolean;
   squares: (string | null)[];
   onPlay: (nextSquares: (string | null)[]) => void;
+  BotToggled: boolean;
 };
 
-function Board({ xIsNext, squares, onPlay }: BoardProps) {
+function Board({ xIsNext, squares, onPlay, BotToggled }: BoardProps) {
   function handleClick(i: number):void {
     if (squares[i] || calculateWinner(squares)) {
       return;
@@ -33,12 +34,16 @@ function Board({ xIsNext, squares, onPlay }: BoardProps) {
 
   const winner = calculateWinner(squares);
   let status;
-  if (winner) {
-    status = "Winner: " + winner;
-  } else if (squares.includes(null)) {
-    status = "Next player: " + (xIsNext ? "X" : "O");
+  if (BotToggled) {
+    status = "Human vs Bot"
   } else {
-    status = "Draw";
+    if (winner) {
+      status = "Winner: " + winner;
+    } else if (squares.includes(null)) {
+      status = "Next player: " + (xIsNext ? "X" : "O");
+    } else {
+      status = "Draw";
+    }
   }
 
   return (
@@ -66,10 +71,21 @@ function Board({ xIsNext, squares, onPlay }: BoardProps) {
 
 
 export default function Game() {
-  const [history, setHistory] = React.useState<(string | null)[][]>([Array(9).fill(null)]);
+  const [history, setHistory] = useState<(string | null)[][]>([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState<number>(0);
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
+  const [BotToggled, setToggled] = useState(false);
+
+  let mode;
+  if(BotToggled) {
+    mode = "2 player mode"
+  } else {
+    mode = "single player mode"
+  }
+
+  if (!xIsNext) {
+  }
 
   function handlePlay(nextSquares: (string | null)[]): void {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
@@ -98,7 +114,12 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} BotToggled={BotToggled}/>
+        <div className='MoveBot'>
+          <button className='toggle-btn' onClick={() => setToggled(!BotToggled)}>
+            <div className='thumb'>{mode}</div>
+          </button>
+        </div>
       </div>
       <div className="game-info">
         <ol>{moves}</ol>
