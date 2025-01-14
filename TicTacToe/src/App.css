@@ -64,6 +64,10 @@
   width: 100px;
 }
 
+.square.highlighted {
+  background-color: yellow;
+}
+
 .board-row:after {
   clear: both;
   content: '';

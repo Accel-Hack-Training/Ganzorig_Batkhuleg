@@ -5,10 +5,11 @@ import {useState} from 'react';
 type SquareProps = {
   value: string | null;
   onSquareClick: () => void;
+  diff: number;
 };
 
-function Square({ value, onSquareClick }: SquareProps) {
-  return <button className="square" onClick={onSquareClick}>{value}</button>;
+function Square({ value, onSquareClick, diff}: SquareProps) {
+  return <button className={`square ${diff ? "highlighted" : ""}`} onClick={onSquareClick}>{value}</button>;
 }
 
 type BoardProps = {
@@ -16,9 +17,10 @@ type BoardProps = {
   squares: (string | null)[];
   onPlay: (nextSquares: (string | null)[]) => void;
   botToggled: boolean;
+  diff: null;
 };
 
-function Board({ xIsNext, squares, onPlay, botToggled }: BoardProps) {
+function Board({ xIsNext, squares, onPlay, botToggled ,diff}: BoardProps) {
   function handleClick(i: number):void {
     if (squares[i] || calculateWinner(squares)) {
       return;
@@ -58,19 +60,19 @@ function Board({ xIsNext, squares, onPlay, botToggled }: BoardProps) {
         <header className="App-header">Tic Tac Toe</header>
         <div className="status">{status}</div>
         <div className="board-row">
-          <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-          <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-          <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+          <Square value={squares[0]} onSquareClick={() => handleClick(0)} diff={diff === 0}/>
+          <Square value={squares[1]} onSquareClick={() => handleClick(1)} diff={diff === 1}/>
+          <Square value={squares[2]} onSquareClick={() => handleClick(2)} diff={diff === 2}/>
         </div>
         <div className="board-row">
-          <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-          <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-          <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
+          <Square value={squares[3]} onSquareClick={() => handleClick(3)} diff={diff === 3}/>
+          <Square value={squares[4]} onSquareClick={() => handleClick(4)} diff={diff === 4}/>
+          <Square value={squares[5]} onSquareClick={() => handleClick(5)} diff={diff === 5}/>
         </div>
         <div className="board-row">
-          <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-          <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-          <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+          <Square value={squares[6]} onSquareClick={() => handleClick(6)} diff={diff === 6}/>
+          <Square value={squares[7]} onSquareClick={() => handleClick(7)} diff={diff === 7}/>
+          <Square value={squares[8]} onSquareClick={() => handleClick(8)} diff={diff === 8}/>
         </div>
       </div>
   );
@@ -83,6 +85,7 @@ export default function Game() {
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
   const [botToggled, setToggled] = useState(false);
+  const [diff, setDiff] = useState<null>(null);
 
   let mode;
   if(botToggled) {
@@ -106,6 +109,7 @@ export default function Game() {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
+    setDiff(null);
   
     if (botToggled && !calculateWinner(nextSquares) && nextSquares.includes(null)) {
       const botMoveIndex = getBotMove(nextSquares);
@@ -122,15 +126,19 @@ export default function Game() {
 
   function jumpTo(nextMove: number): void {
     setCurrentMove(nextMove);
-    const last = history[currentMove];
-    const prev = history[currentMove - 1];
-    let diff;
-    for (let i=0; i < history[currentMove].length; i++){
-      if (last[i] !== prev[i]){
-        diff = i;
+    if (nextMove > 0){
+      const last = history[nextMove];
+      const prev = history[nextMove - 1];
+      for (let i=0; i < last.length; i++){
+        if (last[i] !== prev[i]){
+          setDiff(i);
+          break;
+        }
       }
     }
-    console.log(diff);
+    else {
+      setDiff(null);
+    }
   }
 
   const moves = history.map((squares, move) => {
@@ -150,7 +158,7 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} botToggled={botToggled}/>
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} botToggled={botToggled} diff={diff}/>
         <div className='MoveBot'>
           <button className='toggle-btn' onClick={() => setToggled(!botToggled)}>
             <div className='thumb'>{mode}</div>
