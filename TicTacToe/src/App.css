@@ -1,16 +1,43 @@
-.App {
+.game {
   background-color: #282c34;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
 }
 
-.App_header {
-  
+.game-board {
+  position: relative;
+  top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.game-info {
+  margin-top: 70px;
+  min-width: 300px;
+  overflow-y: auto; /* Prevents buttons from pushing the entire app upward */
+  max-height: 600px; /* Limit the height of the moves list */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.App-header{
+  margin-bottom: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(20px + 2vmin);
+}
+
+.status{
+  margin-bottom: 20px;
 }
 
 .board {
@@ -41,4 +68,14 @@
   clear: both;
   content: '';
   display: table;
+}
+
+ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ol li {
+  margin: 5px 0;
 }
