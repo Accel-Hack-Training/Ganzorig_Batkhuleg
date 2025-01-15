@@ -1,101 +1,34 @@
 import React from 'react';
 import './App.css';
 import {useState} from 'react';
-
-type SquareProps = {
-  value: string | null;
-  onSquareClick: () => void;
-  diff: number;
-};
-
-function Square({ value, onSquareClick, diff}: SquareProps) {
-  return <button className={`square ${diff ? "highlighted" : ""}`} onClick={onSquareClick}>{value}</button>;
-}
-
-type BoardProps = {
-  xIsNext: boolean;
-  squares: (string | null)[];
-  onPlay: (nextSquares: (string | null)[]) => void;
-  botToggled: boolean;
-  diff: null;
-};
-
-function Board({ xIsNext, squares, onPlay, botToggled ,diff}: BoardProps) {
-  function handleClick(i: number):void {
-    if (squares[i] || calculateWinner(squares)) {
-      return;
-    }
-    const nextSquares = squares.slice();
-    if (xIsNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
-    onPlay(nextSquares);
-  }
-
-  const winner = calculateWinner(squares);
-  let status: string;
-  if (botToggled) {
-    status = "Human vs Bot"
-    if (winner === "O") {
-      status = "Winner: Bot";
-    } else if (winner ==="X") {
-      status = "Winner: Human";
-    } else {
-    status = "Human vs Bot"
-    }
-  } else {
-    if (winner) {
-      status = "Winner: " + winner;
-    } else if (squares.includes(null)) {
-      status = "Next player: " + (xIsNext ? "X" : "O");
-    } else {
-      status = "Draw";
-    }
-  }
-
-  return (
-      <div className="App">
-        <header className="App-header">Tic Tac Toe</header>
-        <div className="status">{status}</div>
-        <div className="board-row">
-          <Square value={squares[0]} onSquareClick={() => handleClick(0)} diff={diff === 0}/>
-          <Square value={squares[1]} onSquareClick={() => handleClick(1)} diff={diff === 1}/>
-          <Square value={squares[2]} onSquareClick={() => handleClick(2)} diff={diff === 2}/>
-        </div>
-        <div className="board-row">
-          <Square value={squares[3]} onSquareClick={() => handleClick(3)} diff={diff === 3}/>
-          <Square value={squares[4]} onSquareClick={() => handleClick(4)} diff={diff === 4}/>
-          <Square value={squares[5]} onSquareClick={() => handleClick(5)} diff={diff === 5}/>
-        </div>
-        <div className="board-row">
-          <Square value={squares[6]} onSquareClick={() => handleClick(6)} diff={diff === 6}/>
-          <Square value={squares[7]} onSquareClick={() => handleClick(7)} diff={diff === 7}/>
-          <Square value={squares[8]} onSquareClick={() => handleClick(8)} diff={diff === 8}/>
-        </div>
-      </div>
-  );
-}
-
+import Board from './components/Board.tsx';
 
 export default function Game() {
   const [history, setHistory] = useState<(string | null)[][]>([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState<number>(0);
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
-  const [botToggled, setToggled] = useState(false);
+  const [botToggled, setToggled] = useState<boolean>(false);
   const [diff, setDiff] = useState<null>(null);
 
   let mode;
   if(botToggled) {
-    mode = "2 player mode"
+    mode = "2 Player Mode"
   } else {
-    mode = "single player mode"
+    mode = "Play With Bot"
+    // jumpTo(0)
   }
 
-  if (!xIsNext) {
+  const handleClick = () => {
+    setToggled(!botToggled)
+    if(currentMove !== 0){
+      jumpTo(0)
+    } else {
+      return;
+    }
   }
+
+
 
   function getBotMove(squares: (string | null)[]): number | null {
     const emptySquares = squares.map((sq, idx) => (sq === null ? idx : null)).filter(idx => idx !== null) as number[];
@@ -129,7 +62,7 @@ export default function Game() {
     if (nextMove > 0){
       const last = history[nextMove];
       const prev = history[nextMove - 1];
-      for (let i=0; i < last.length; i++){
+      for (let i = 0; i < last.length; i++){
         if (last[i] !== prev[i]){
           setDiff(i);
           break;
@@ -142,7 +75,7 @@ export default function Game() {
   }
 
   const moves = history.map((squares, move) => {
-    let description;
+    let description: string;
     if (move > 0) {
       description = 'Go to move #' + move;
     } else {
@@ -150,21 +83,22 @@ export default function Game() {
     }
     return (
       <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
+        <button className='button' onClick={() => jumpTo(move)}>{description}</button>
       </li>
     );
   });
 
   return (
     <div className="game">
+     
+      <div className='moveBot'>
+        <button className='toggle-btn' onClick={handleClick}>
+          <div className='thumb'>{mode}</div>
+        </button>
+      </div>
       <div className="game-board">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} botToggled={botToggled} diff={diff}/>
-        <div className='MoveBot'>
-          <button className='toggle-btn' onClick={() => setToggled(!botToggled)}>
-            <div className='thumb'>{mode}</div>
-          </button>
-        </div>
-      </div>
+      </div>   
       <div className="game-info">
         <ol>{moves}</ol>
       </div>
@@ -172,7 +106,7 @@ export default function Game() {
   );
 }
 
-function calculateWinner(squares: (string | null)[]): string | null {
+export function calculateWinner(squares: (string | null)[]): string | null {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],

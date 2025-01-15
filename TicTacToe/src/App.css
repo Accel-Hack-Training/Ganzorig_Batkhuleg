@@ -1,16 +1,30 @@
+
 .game {
   background-color: #282c34;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
   min-height: 100vh;
   flex-direction: row;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  /* color: white; */
+}
+
+.moveBot{
+  display: flex;
+  flex-direction: column; 
+  justify-content: center; /* Center vertically */
+  align-items: center;
+  min-width: 300px;
+  overflow-y: auto; /* Prevents buttons from pushing the entire app upward */
+  max-height: 600px; /* Limit the height of the moves list */
 }
 
 .game-board {
-  position: relative;
-  top: 50px;
+  margin-top: 240px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -19,13 +33,14 @@
 }
 
 .game-info {
-  margin-top: 70px;
+  
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center;
   min-width: 300px;
   overflow-y: auto; /* Prevents buttons from pushing the entire app upward */
   max-height: 600px; /* Limit the height of the moves list */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .App-header{
@@ -82,4 +97,26 @@ ol {
 
 ol li {
   margin: 5px 0;
+}
+
+.button {
+  background-color: #04AA6D; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+.toggle-btn {
+  background-color: #04AA6D; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
 }
