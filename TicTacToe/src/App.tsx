@@ -2,6 +2,8 @@ import React from 'react';
 import './App.css';
 import {useState} from 'react';
 import Board from './components/Board.tsx';
+import { getBotMove } from './BotMove.tsx';
+import { getUnbeatableBotmove } from './BotMove.tsx';
 
 export default function Game() {
   const [history, setHistory] = useState<(string | null)[][]>([Array(9).fill(null)]);
@@ -10,13 +12,29 @@ export default function Game() {
   const xIsNext = currentMove % 2 === 0;
   const [botToggled, setToggled] = useState<boolean>(false);
   const [diff, setDiff] = useState<null>(null);
+  const [unBeatable, setUnBeatable] = useState<boolean>(false);
 
-  let mode;
+  let mode:string;
   if(botToggled) {
     mode = "2 Player Mode"
   } else {
     mode = "Play With Bot"
-    // jumpTo(0)
+  }
+
+  let botMode: string;
+  if(unBeatable){
+    botMode = "Beatable"
+  } else {
+    botMode = "Unbeatable"
+  }
+  
+  const handleBotMode = () => {
+    setUnBeatable(!unBeatable)
+    if(currentMove !== 0){
+      jumpTo(0)
+    } else {
+      return;
+    }
   }
 
   const handleClick = () => {
@@ -28,24 +46,29 @@ export default function Game() {
     }
   }
 
-
-
-  function getBotMove(squares: (string | null)[]): number | null {
-    const emptySquares = squares.map((sq, idx) => (sq === null ? idx : null)).filter(idx => idx !== null) as number[];
-    if (emptySquares.length === 0) {
-      return null; // No moves available
+  function handleMoveOrder(nextSquares: (string | null)[]): void {
+  if (botToggled && !calculateWinner(nextSquares) && nextSquares.includes(null)) {
+    const botMoveIndex = (unBeatable? getUnbeatableBotmove(nextSquares): getBotMove(nextSquares));
+    if (botMoveIndex !== null) {
+      const botSquares = nextSquares.slice();
+      botSquares[botMoveIndex] = "O"; // Assume bot is "O"
+      const updatedHistory = [...history.slice(0, currentMove + 1), botSquares];
+      setHistory(updatedHistory);
+      setCurrentMove(updatedHistory.length - 1);
     }
-    return emptySquares[Math.floor(Math.random() * emptySquares.length)];
   }
+  setDiff(null)
+}
 
   function handlePlay(nextSquares: (string | null)[]): void {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
-    setHistory(nextHistory);
-    setCurrentMove(nextHistory.length - 1);
-    setDiff(null);
+
+      const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+      setHistory(nextHistory);
+      setCurrentMove(nextHistory.length - 1);
+      setDiff(null);
   
     if (botToggled && !calculateWinner(nextSquares) && nextSquares.includes(null)) {
-      const botMoveIndex = getBotMove(nextSquares);
+      const botMoveIndex = (unBeatable? getUnbeatableBotmove(nextSquares): getBotMove(nextSquares));
       if (botMoveIndex !== null) {
         const botSquares = nextSquares.slice();
         botSquares[botMoveIndex] = "O"; // Assume bot is "O"
@@ -55,11 +78,10 @@ export default function Game() {
       }
     }
   }
-  
 
   function jumpTo(nextMove: number): void {
     setCurrentMove(nextMove);
-    if (nextMove > 0){
+    if (nextMove > 0){ // highlight
       const last = history[nextMove];
       const prev = history[nextMove - 1];
       for (let i = 0; i < last.length; i++){
@@ -95,9 +117,12 @@ export default function Game() {
         <button className='toggle-btn' onClick={handleClick}>
           <div className='thumb'>{mode}</div>
         </button>
+        <button className={`button ${botToggled ? "" : "button2"}`} onClick={handleBotMode}>
+        <div className='thumb'>{botMode}</div>
+        </button>
       </div>
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} botToggled={botToggled} diff={diff}/>
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} onDisorder={handleMoveOrder} botToggled={botToggled} diff={diff}/>
       </div>   
       <div className="game-info">
         <ol>{moves}</ol>

@@ -79,7 +79,7 @@
   width: 100px;
 }
 
-.square.highlighted {
+.highlighted {
   background-color: yellow;
 }
 
@@ -119,4 +119,9 @@ ol li {
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.button2 {
+  display: none;
 }

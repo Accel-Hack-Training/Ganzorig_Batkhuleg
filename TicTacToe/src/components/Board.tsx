@@ -7,11 +7,12 @@ type BoardProps = {
   xIsNext: boolean;
   squares: (string | null)[];
   onPlay: (nextSquares: (string | null)[]) => void;
+  onDisorder: (nextSquares: (string | null)[]) => void;
   botToggled: boolean;
   diff: null;
 };
 
-export default function Board({ xIsNext, squares, onPlay, botToggled ,diff}: BoardProps) {
+export default function Board({ xIsNext, squares, onPlay, onDisorder, botToggled ,diff}: BoardProps) {
   function handleClick(i: number):void {
     if (squares[i] || calculateWinner(squares)) {
       return;
@@ -19,10 +20,14 @@ export default function Board({ xIsNext, squares, onPlay, botToggled ,diff}: Boa
     const nextSquares = squares.slice();
     if (xIsNext) {
       nextSquares[i] = "X";
+      onPlay(nextSquares);
+    } else if(!xIsNext && botToggled) {
+      nextSquares[i] = null;
+      onDisorder(nextSquares);
     } else {
       nextSquares[i] = "O";
+      onPlay(nextSquares);
     }
-    onPlay(nextSquares);
   }
 
   const winner = calculateWinner(squares);
@@ -33,8 +38,8 @@ export default function Board({ xIsNext, squares, onPlay, botToggled ,diff}: Boa
       status = "Winner: Bot";
     } else if (winner ==="X") {
       status = "Winner: Human";
-    } else {
-    status = "Human vs Bot"
+    } else if(!squares.includes(null)) {
+    status = "Draw"
     }
   } else {
     if (winner) {
@@ -45,7 +50,6 @@ export default function Board({ xIsNext, squares, onPlay, botToggled ,diff}: Boa
       status = "Draw";
     }
   }
-
   return (
       <div className="App">
         <header className="App-header">Tic Tac Toe</header>
